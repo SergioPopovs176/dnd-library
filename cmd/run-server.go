@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/SergioPopovs176/dnd-library/app"
@@ -9,7 +10,18 @@ import (
 
 // go run ./cmd/run-server.go
 func main() {
-	app, _ := app.New()
+	app, err := app.New()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer app.Stop()
+
+	//TODO move ping to storage ??
+	if err := app.Storage.Ping(); err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("CONECTED")
 
 	app.Logger.Println("Start server on port", app.Config.Port, "-- Version", app.Config.Version)
 
