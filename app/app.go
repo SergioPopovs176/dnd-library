@@ -5,9 +5,11 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/SergioPopovs176/dnd-library/storage"
 	"github.com/SergioPopovs176/dnd-library/storage/postgres"
+	dnd5e "github.com/SergioPopovs176/dnd5-client/dnd-5e"
 	"github.com/joho/godotenv"
 )
 
@@ -18,9 +20,10 @@ type config struct {
 }
 
 type Application struct {
-	Config  config
-	Logger  *log.Logger
-	Storage storage.Storage
+	Config    config
+	Logger    *log.Logger
+	Storage   storage.Storage
+	DndClient *dnd5e.Client
 }
 
 func New() (*Application, error) {
@@ -50,10 +53,16 @@ func New() (*Application, error) {
 		return &Application{}, err
 	}
 
+	client, err := dnd5e.NewClient(time.Second * 15)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	app := &Application{
-		Config:  cfg,
-		Logger:  logger,
-		Storage: storage,
+		Config:    cfg,
+		Logger:    logger,
+		Storage:   storage,
+		DndClient: client,
 	}
 
 	return app, nil

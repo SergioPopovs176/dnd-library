@@ -1,3 +1,5 @@
+github.com/SergioPopovs176/dnd5-client v0.0.0-20250106211719-f25130f196f3 h1:+4kQLWV7nDyfPnyOXyJp6/57w41IzScIP9N8EKEK4zY=
+github.com/SergioPopovs176/dnd5-client v0.0.0-20250106211719-f25130f196f3/go.mod h1:ZS6T4HXgfyD9eklL7gZpPRIHcih0ULRfXzFgelLpAgc=
 github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
 github.com/joho/godotenv v1.5.1/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
 github.com/lib/pq v1.10.9 h1:YXG7RB+JIjhP29X+OtkiDnYaXQwpS4JEWq7dtCCRUEw=

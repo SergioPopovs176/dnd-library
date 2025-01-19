@@ -1,20 +1,24 @@
 package storage
 
+import dnd5e "github.com/SergioPopovs176/dnd5-client/dnd-5e"
+
 type Monster struct {
-	ID int
+	ID    int
+	Index string `json:"index"`
 }
 
-// Index     string `json:"index"`
-// Name      string `json:"name"`
-// Url       string `json:"url"`
-// Size      string `json:"size"`
-// Type      string `json:"type"`
-// Subtype   string `json:"subtype"`
-// Alignment string `json:"alignment"`
+type MonsterFull struct {
+	ID        int
+	Index     string `json:"index"`
+	Name      string `json:"name"`
+	Size      string `json:"size"`
+	Type      string `json:"type"`
+	Alignment string `json:"alignment"`
+}
 
 type Storage interface {
 	Close()
 	Ping() error
-	Sync() error
+	Sync(*dnd5e.Client) error
 	GetMonsterList() ([]Monster, error)
 }

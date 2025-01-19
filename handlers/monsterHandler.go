@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -29,9 +30,13 @@ func (h MonsterHandler) HandleGetMonstersList(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	fmt.Println(monsters)
+	resp, err := json.Marshal(monsters)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
-	w.Write([]byte("list\n"))
+	w.Write(resp)
 }
 
 func (h MonsterHandler) HandleGetMonster(w http.ResponseWriter, r *http.Request) {

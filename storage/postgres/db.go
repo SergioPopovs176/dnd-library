@@ -3,9 +3,11 @@ package postgres
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/SergioPopovs176/dnd-library/storage"
+	dnd5e "github.com/SergioPopovs176/dnd5-client/dnd-5e"
 	_ "github.com/lib/pq"
 )
 
@@ -52,37 +54,88 @@ func (db *Db) Ping() error {
 	return db.connection.Ping()
 }
 
-func (db *Db) Sync() error {
+func (db *Db) Sync(c *dnd5e.Client) error {
 	// TODO check is table 'monsters' exist and is empty
-	// Проверка существования таблицы
+	tableName := "monsters"
+	query := `
+		SELECT EXISTS (
+			SELECT 1
+			FROM information_schema.tables
+			WHERE table_schema = 'public'
+			  AND table_name = $1
+		);
+	`
 
-	// tableName := "your_table_name"
-	// query := `
-	// 	SELECT EXISTS (
-	// 		SELECT 1
-	// 		FROM information_schema.tables
-	// 		WHERE table_schema = 'public'
-	// 		  AND table_name = $1
-	// 	);
-	// `
+	var exists bool
+	err := db.connection.QueryRow(query, tableName).Scan(&exists)
+	if err != nil {
+		return err
+	}
 
-	// var exists bool
-	// err = db.QueryRow(query, tableName).Scan(&exists)
-	// if err != nil {
-	// 	log.Fatalf("Ошибка выполнения запроса: %v", err)
-	// }
+	if exists {
+		//TODO write to logger
+		fmt.Printf("Таблица %s существует.\n", tableName)
+		return nil
+	} else {
+		//TODO write to logger
+		fmt.Printf("Таблица %s не существует.\n", tableName)
+	}
 
-	// if exists {
-	// 	fmt.Printf("Таблица %s существует.\n", tableName)
-	// } else {
-	// 	fmt.Printf("Таблица %s не существует.\n", tableName)
-	// }
+	//TODO create table
+	createTableQuery := fmt.Sprintf(`
+		CREATE TABLE %s (
+			id SERIAL NOT NULL UNIQUE,
+			index varchar(255) NOT NULL UNIQUE,
+			name varchar(255) NOT NULL,
+			size varchar(255) NOT NULL,
+			type varchar(255) NOT NULL,
+			alignment varchar(255) NOT NULL,
+			added_at timestamp NOT NULL DEFAULT now(),
+			updated_at timestamp NOT NULL DEFAULT now()
+		);
+	`, tableName)
+
+	r, err := db.connection.Exec(createTableQuery)
+	fmt.Println(r)
+	if err != nil {
+		log.Fatalf("Ошибка при создании таблицы %s: %v", tableName, err)
+	}
+
+	fmt.Printf("Таблица %s успешно создана\n", tableName)
+
+	monsters, err := c.GetMonsters()
+	if err != nil {
+		return err
+	}
+	fmt.Println(monsters)
+
+	for _, m := range monsters {
+		mf, err := c.GetMonster(m.Index)
+		if err != nil {
+			return err
+		}
+		fmt.Println(mf)
+
+		dbm := storage.MonsterFull{
+			Index:     mf.Index,
+			Name:      mf.Name,
+			Size:      mf.Size,
+			Type:      mf.Type,
+			Alignment: mf.Alignment,
+		}
+
+		_, err = db.connection.Exec("INSERT INTO monsters (index, name, size, type, alignment) values ($1, $2, $3, $4, $5)",
+			dbm.Index, dbm.Name, dbm.Size, dbm.Type, dbm.Alignment)
+		if err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
 
 func (db *Db) GetMonsterList() ([]storage.Monster, error) {
-	rows, err := db.connection.Query("select * from monsters")
+	rows, err := db.connection.Query("select id, index from monsters")
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +144,7 @@ func (db *Db) GetMonsterList() ([]storage.Monster, error) {
 	monsters := make([]storage.Monster, 0)
 	for rows.Next() {
 		m := storage.Monster{}
-		err := rows.Scan(&m.ID)
+		err := rows.Scan(&m.ID, &m.Index)
 		if err != nil {
 			return nil, err
 		}
