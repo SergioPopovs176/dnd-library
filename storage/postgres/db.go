@@ -159,3 +159,11 @@ func (db *Db) GetMonsterList() ([]storage.Monster, error) {
 
 	return monsters, nil
 }
+
+func (db *Db) GetMonsterById(monsterId int) (storage.MonsterFull, error) {
+	m := storage.MonsterFull{}
+	err := db.connection.QueryRow("select id, index, name, size, type, alignment from monsters where id = $1", monsterId).
+		Scan(&m.ID, &m.Index, &m.Name, &m.Size, &m.Type, &m.Alignment)
+
+	return m, err
+}

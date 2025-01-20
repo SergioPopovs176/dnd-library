@@ -21,4 +21,5 @@ type Storage interface {
 	Ping() error
 	Sync(*dnd5e.Client) error
 	GetMonsterList() ([]Monster, error)
+	GetMonsterById(monsterId int) (MonsterFull, error)
 }

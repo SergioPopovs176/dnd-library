@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/SergioPopovs176/dnd-library/app"
 	"github.com/SergioPopovs176/dnd-library/storage"
@@ -40,7 +41,30 @@ func (h MonsterHandler) HandleGetMonstersList(w http.ResponseWriter, r *http.Req
 }
 
 func (h MonsterHandler) HandleGetMonster(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("monster full info by id\n"))
+	monsterId := r.PathValue("id")
+	fmt.Println(monsterId)
+
+	id, err := strconv.Atoi(monsterId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	monster, err := h.storage.GetMonsterById(id)
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	fmt.Println(monster)
+
+	resp, err := json.Marshal(monster)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(resp)
 }
 
 func (h MonsterHandler) HandleAddMonster(w http.ResponseWriter, r *http.Request) {
