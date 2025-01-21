@@ -23,4 +23,5 @@ type Storage interface {
 	GetMonsterList() ([]Monster, error)
 	GetMonsterById(monsterId int) (MonsterFull, error)
 	AddMonster(monster MonsterFull) (MonsterFull, error)
+	DeleteMonsterById(monsterId int) error
 }

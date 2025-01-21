@@ -182,3 +182,8 @@ func (db *Db) AddMonster(monster storage.MonsterFull) (storage.MonsterFull, erro
 
 	return db.GetMonsterById(id)
 }
+
+func (db *Db) DeleteMonsterById(monsterId int) error {
+	_, err := db.connection.Exec("delete from monsters where id = $1", monsterId)
+	return err
+}

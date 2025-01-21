@@ -99,7 +99,22 @@ func (h MonsterHandler) HandleAddMonster(w http.ResponseWriter, r *http.Request)
 }
 
 func (h MonsterHandler) HandleDeleteMonster(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Delete monster by id\n"))
+	monsterId := r.PathValue("id")
+
+	id, err := strconv.Atoi(monsterId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = h.storage.DeleteMonsterById(id)
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Write([]byte(fmt.Sprintf("Was deleted monster with %d\n", id)))
 }
 
 func (h MonsterHandler) HandleUpdateMonster(w http.ResponseWriter, r *http.Request) {
