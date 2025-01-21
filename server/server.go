@@ -71,23 +71,12 @@ func getRouter(s *Server) *http.ServeMux {
 	// curl -v -X PUT -H "Content-Type: application/json" -d '{"name":"new name","size":"new size","type":"new type","alignment":"new alignment"}' localhost:8080/v1/monsters/{id}
 	mux.HandleFunc("PUT /v1/monsters/{id}", s.monsterHandler.HandleUpdateMonster)
 
-	// mux.HandleFunc("GET /v0/game/status", app.Game.GetStatusHandler)
-	// mux.HandleFunc("POST /v0/game/add", app.Game.AddPlayerHandler)
-
 	return mux
 }
 
 func loggerMiddleware(next http.Handler, l *log.Logger) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// idFromCtx := r.Context().Value("id")
-		// userID, ok := idFromCtx.(string)
-		// if !ok {
-		// 	log.Printf("[%s] %s - error: userID is invalid\n", r.Method, r.URL)
-		// 	w.WriteHeader(http.StatusInternalServerError)
-		// 	return
-		// }
-		userID := "88"
-		l.Printf("[%s] %s by userID %s\n", r.Method, r.URL, userID)
+		l.Printf("[%s] %s", r.Method, r.URL)
 		next.ServeHTTP(w, r)
 	})
 }
