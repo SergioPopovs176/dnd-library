@@ -114,7 +114,6 @@ func (db *Db) Sync(c *dnd5e.Client) error {
 		if err != nil {
 			return err
 		}
-		fmt.Println(mf)
 
 		dbm := storage.MonsterFull{
 			Index:     mf.Index,
@@ -166,4 +165,20 @@ func (db *Db) GetMonsterById(monsterId int) (storage.MonsterFull, error) {
 		Scan(&m.ID, &m.Index, &m.Name, &m.Size, &m.Type, &m.Alignment)
 
 	return m, err
+}
+
+func (db *Db) AddMonster(monster storage.MonsterFull) (storage.MonsterFull, error) {
+	query := `
+		INSERT INTO monsters (index, name, size, type, alignment)
+		VALUES ($1, $2, $3, $4, $5)
+		RETURNING id;
+	`
+
+	var id int
+	err := db.connection.QueryRow(query, monster.Index, monster.Name, monster.Size, monster.Type, monster.Alignment).Scan(&id)
+	if err != nil {
+		log.Fatalf("Ошибка при добавлении записи: %v", err)
+	}
+
+	return db.GetMonsterById(id)
 }

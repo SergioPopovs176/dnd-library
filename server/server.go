@@ -64,7 +64,7 @@ func getRouter(s *Server) *http.ServeMux {
 	mux.HandleFunc("GET /v1/monsters", s.monsterHandler.HandleGetMonstersList)
 	// curl -v -X GET localhost:8080/v1/monsters/{id}
 	mux.HandleFunc("GET /v1/monsters/{id}", s.monsterHandler.HandleGetMonster)
-	// curl -v -X POST localhost:8080/v1/monsters/{id}
+	// curl -v -X POST -H "Content-Type: application/json" -d '{"index":"test-monster","name":"test monster","size":"small","type":"humanoid","alignment":"neutral good"}' localhost:8080/v1/monsters
 	mux.HandleFunc("POST /v1/monsters", s.monsterHandler.HandleAddMonster)
 	// curl -v -X DELETE localhost:8080/v1/monsters/{id}
 	mux.HandleFunc("DELETE /v1/monsters/{id}", s.monsterHandler.HandleDeleteMonster)

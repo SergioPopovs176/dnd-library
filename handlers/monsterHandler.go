@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -68,7 +69,33 @@ func (h MonsterHandler) HandleGetMonster(w http.ResponseWriter, r *http.Request)
 }
 
 func (h MonsterHandler) HandleAddMonster(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Add new monster\n"))
+	reqBytes, err := io.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	var monster storage.MonsterFull
+	if err = json.Unmarshal(reqBytes, &monster); err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	fmt.Println(monster)
+
+	nm, err := h.storage.AddMonster(monster)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	resp, err := json.Marshal(nm)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(resp)
 }
 
 func (h MonsterHandler) HandleDeleteMonster(w http.ResponseWriter, r *http.Request) {
