@@ -118,5 +118,34 @@ func (h MonsterHandler) HandleDeleteMonster(w http.ResponseWriter, r *http.Reque
 }
 
 func (h MonsterHandler) HandleUpdateMonster(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Update monster by id\n"))
+	monsterId := r.PathValue("id")
+	id, err := strconv.Atoi(monsterId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Println(id)
+
+	reqBytes, err := io.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	var monster storage.MonsterFull
+	if err = json.Unmarshal(reqBytes, &monster); err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	fmt.Println(monster)
+
+	err = h.storage.UpdateMonsterById(id, monster)
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Write([]byte(fmt.Sprintf("Was updated monster with %d\n", id)))
 }

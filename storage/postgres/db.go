@@ -187,3 +187,10 @@ func (db *Db) DeleteMonsterById(monsterId int) error {
 	_, err := db.connection.Exec("delete from monsters where id = $1", monsterId)
 	return err
 }
+
+func (db *Db) UpdateMonsterById(monsterId int, monster storage.MonsterFull) error {
+	_, err := db.connection.Exec("UPDATE monsters SET name=$1, size=$2, type=$3, alignment=$4 where id = $5",
+		monster.Name, monster.Size, monster.Type, monster.Alignment, monsterId)
+	fmt.Println(err)
+	return err
+}
